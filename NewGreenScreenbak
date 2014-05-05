@@ -1,0 +1,183 @@
+# Green Screen image with 3D
+#for this project we take pictures with a green background and make them into 3D
+#these pictures are then combined with another image to make a green screen effect
+#when placed together all of these images create a 3D video. 
+
+#3D image first
+#Using the same picture, the program creates a red and cyan version of the image. 
+# the pictures are then blended together to create an anaglyph that can be seen using 3D glasses. 
+
+# gets the image and makes it red
+def makeRed(picture):
+  for px in getPixels(picture): #gets all the pixels in theimage
+    r=getRed(px)
+    g=getGreen(px)
+    b=getBlue(px)
+    redColor=makeColor(r, 0 - g, 0 - b) #leaves the red and sets the green and blue values to 0
+    setColor(px, redColor)
+  repaint(picture)
+  writePictureTo(picture,"C:\\Users\\Norma\\Desktop\\3D project\\pictureRed.jpg") # saves the red image to desktop
+
+  #gets the image and makes it cyan
+def makeCyan(picture):
+  for px in getPixels(picture): #gets all the pixels in theimage
+    r=getRed(px)
+    g=getGreen(px)
+    b=getBlue(px)
+    cyanColor=makeColor(0 - r, g, b) # sets the red pixels to zero
+    setColor(px, cyanColor)
+  repaint(picture)
+  writePictureTo(picture,"C:\\Users\\Norma\\Desktop\\3D project\\pictureCyan.jpg") # saves the cyan image to the desktop. 
+
+# blend pictures function 
+def blendPictures(pict1, pict2, overlapAmt): #takes in both pictures and by how many pixels do you want one image
+# to overlap the other one.
+# both pictures havet to be the same size. 
+  width1 = getWidth(pict1)
+  height1 = getHeight(pict1)
+  width2 = getWidth(pict2)
+  height2 = getHeight(pict2)
+
+  # Set up width and height for new canvas
+  newWidth = width1 + width2 - overlapAmt
+  newHeight = min(height1, height2)
+  
+  # Create the canvas to hold the blended pictures
+  newCanvas = makeEmptyPicture(newWidth, newHeight)
+
+  # Copy the first picture up to the overlap section
+  for x in range(width1 - overlapAmt):
+    for y in range(newHeight): 
+      color = getColor(getPixel(pict1, x, y))
+      setColor(getPixel(newCanvas, x, y), color)
+
+  # Copy the blended section
+  # 50% pict1 and 50% pict2
+  pict2_x = 0
+  for pict1_x in range(width1 - overlapAmt, width1):
+    for y in range(newHeight):
+      pixel1 = getPixel(pict1, pict1_x, y)
+      pixel2 = getPixel(pict2, pict2_x, y)
+      # the number you are multiplying the pixel with determines the brightness
+      # of the pixel, the higher the number the prighter the picture will be. 
+      newRed = 0.60 * getRed(pixel1) + 0.60 * getRed(pixel2)
+      newGreen = 0.60 * getGreen(pixel1) + 0.60 * getGreen(pixel2)
+      newBlue = 0.60 * getBlue(pixel1) + 0.60 * getBlue(pixel2)
+      color = makeColor(newRed, newGreen, newBlue)
+      setColor(getPixel(newCanvas, pict1_x, y), color)
+    pict2_x = pict2_x + 1
+
+  # Copy the remaining section of pict2
+  targetX = width1
+  for x in range(overlapAmt, width2):
+    for y in range(newHeight):
+      color = getColor(getPixel(pict2, x, y))
+      setColor(getPixel(newCanvas, targetX, y), color)
+    targetX = targetX + 1
+
+  # Return the new canvas
+  show(newCanvas)
+  return newCanvas
+  
+
+
+# opens up a picture and makes it red
+picture = makeRed(makePicture(pickAFile()))
+# opens up a picture and makes it cyan 
+picture2 = makeCyan(makePicture(pickAFile()))
+
+# after the manipulated images are saved, you have to open them up again to 
+# be able to blend them togeter. 
+p1 = makePicture(pickAFile())
+p2 = makePicture(pickAFile())
+
+# takes in the red and cyan version of the same image and blends them. 
+# you have to change the overlap amount to be equal or less than the picture width 
+# a good overlap amount is anywhere from 10 - 20 from the picture width
+p3 = blendPictures(p1, p2, 920)
+
+# save 3D image to folder
+writePictureTo(p3,"C:\\Users\\Norma\\Desktop\\3D project\\3Dpicture.jpg") 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# video with 3D effect, a green screen will be added so that the video in the front 
+# will appear to be in a different place, sort of like merging two images together
+
+# create a blank screen
+# an image for the front
+# an image for the back
+
+
+#green screen code, requires a green screen and image
+#both must be the same size
+def greenScreen(source, bg):
+  for p in getPixels(source):
+    if(getRed(p) + getBlue(p) < getGreen(p)):
+      setColor(p, getColor(getPixel(bg, getX(p), getY(p))))
+  repaint (source)
+  show(source)
+
+#make 3D image greener
+def makeGreen(picture):
+  for x in range (0, getWidth(picture)):
+    for y in range(0, getHeight(picture)):
+      pixel = getPixel(picture, x, y)
+      green = getGreen(pixel)
+      red = getRed(pixel)
+      blue = getBlue(pixel)
+      greenColor = makeColor(red, green * 1.53, blue)
+      setColor(pixel, greenColor)
+  show(picture)
+  repaint(picture)
+
+#makebackground image less green 
+def removeGreen(picture):
+  for x in range (0, getWidth(picture)):
+    for y in range(0, getHeight(picture)):
+      pixel = getPixel(picture, x, y)
+      green = getGreen(pixel)
+      red = getRed(pixel)
+      blue = getBlue(pixel)
+      lessGreen = makeColor(red * 1.1, green * .9, blue * 1.1)
+      setColor(pixel, lessGreen)
+  show(picture)
+  repaint(picture)
+
+  
+# get the green screen 
+p4 = makePicture(pickAFile())
+# get the image to be placed in front 
+p5 = makePicture(pickAFile())
+
+
+#call the green screen fgreenScreen function
+p6 = greenScreen(p4, p5)
+ 
+ 
+writePictureTo(p3,"C:\\Users\\Norma\\Desktop\\moving python 2\\python1.jpg") 
+
+#you know have all the images with a different background and a 3D foreground
+#use the video function and it will play the video
+
